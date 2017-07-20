@@ -1,0 +1,44 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: gowebapp
+spec:
+  selector:
+    app: gowebapp
+  ports:
+    - port: 80
+      targetPort: 80
+  type: LoadBalancer
+---
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: gowebapp
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: gowebapp
+    spec:
+      containers:
+        - name: gowebapp
+          image: miguelgrinberg/gowebapp
+          ports:
+            - containerPort: 80
+          env:
+            - name: DB_TYPE
+              value: MySQL
+            - name: DB_NAME
+              value: gowebapp
+            - name: DB_HOST
+              value: mysql
+            - name: DB_PORT
+              value: "3306"
+            - name: DB_USER
+              value: gowebapp
+            - name: DB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: mysql
+                  key: app
